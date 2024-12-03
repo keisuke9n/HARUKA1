@@ -3,48 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>はるかのアプリ1</title>
+    <title>はるかのアプリ2</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #f0f0f0;
+            background: linear-gradient(to bottom right, #f0f8ff, #87ceeb);
+            font-family: Arial, sans-serif;
+            color: #333;
         }
+
         #moving-img {
             position: absolute;
-            width: 150px; /* 画像のサイズを調整 */
+            width: 150px;
             height: auto;
             cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        #moving-img:hover {
+            transform: scale(1.2); /* 画像を拡大 */
+            opacity: 0.8;
+        }
+
+        #score {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
+    <div id="score">ほかくすう: 0</div>
     <img id="moving-img" src="IMG.png" alt="動く画像">
     <audio id="click-sound" src="TN.mp3"></audio>
 
     <script>
         const img = document.getElementById('moving-img');
         const audio = document.getElementById('click-sound');
+        const scoreDisplay = document.getElementById('score');
+        let score = 0;
 
         // 画像をランダムに動かす
         function moveImage() {
-            const x = Math.random() * (window.innerWidth - img.width);
-            const y = Math.random() * (window.innerHeight - img.height);
+            const x = Math.random() * (window.innerWidth - img.offsetWidth);
+            const y = Math.random() * (window.innerHeight - img.offsetHeight);
             img.style.left = `${x}px`;
             img.style.top = `${y}px`;
+
+            // トレイル効果
+            img.style.transition = 'transform 0.5s ease, left 0.5s ease, top 0.5s ease';
         }
 
-        // 定期的に画像を動かす
-        setInterval(moveImage, 1000); // 1秒ごとに移動
+        // スコアを更新
+        function updateScore() {
+            score++;
+            scoreDisplay.textContent = `ほかくすう: ${score}`;
+        }
 
-        // 画像がクリックされたときの処理
+        // 画像クリック時の処理
         img.addEventListener('click', () => {
-            audio.currentTime = 0; // 音声を最初から再生
-            audio.play();
+            updateScore();
+            audio.currentTime = 0;
+            audio.play().catch(() => {
+                console.warn('サウンドが再生されませんでした。');
+            });
+
+            // クリック時のエフェクト
+            img.style.transform = 'scale(1.5)';
+            setTimeout(() => img.style.transform = 'scale(1)', 200);
         });
 
         // 初期位置を設定
         moveImage();
+
+        // 定期的に画像を移動
+        setInterval(moveImage, 1000);
+
+        // タッチ操作対応
+        img.addEventListener('touchstart', () => {
+            updateScore();
+            audio.currentTime = 0;
+            audio.play().catch(() => {
+                console.warn('サウンドが再生されませんでした。');
+            });
+        });
     </script>
 </body>
 </html>
