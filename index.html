@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>動く画像と音声再生</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+        #moving-img {
+            position: absolute;
+            width: 100px; /* 画像のサイズを調整 */
+            height: auto;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <img id="moving-img" src="IMG.png" alt="動く画像">
+    <audio id="click-sound" src="TN.mp3"></audio>
+
+    <script>
+        const img = document.getElementById('moving-img');
+        const audio = document.getElementById('click-sound');
+
+        // 画像をランダムに動かす
+        function moveImage() {
+            const x = Math.random() * (window.innerWidth - img.width);
+            const y = Math.random() * (window.innerHeight - img.height);
+            img.style.left = `${x}px`;
+            img.style.top = `${y}px`;
+        }
+
+        // 定期的に画像を動かす
+        setInterval(moveImage, 1000); // 1秒ごとに移動
+
+        // 画像がクリックされたときの処理
+        img.addEventListener('click', () => {
+            audio.currentTime = 0; // 音声を最初から再生
+            audio.play();
+        });
+
+        // 初期位置を設定
+        moveImage();
+    </script>
+</body>
+</html>
