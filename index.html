@@ -44,56 +44,71 @@
     <img id="moving-img" src="IMG.png" alt="動く画像">
     <audio id="click-sound" src="TN.mp3"></audio>
 
-    <script>
-        const img = document.getElementById('moving-img');
-        const audio = document.getElementById('click-sound');
-        const scoreDisplay = document.getElementById('score');
-        let score = 0;
+  <script>
+    const img = document.getElementById('moving-img');
+    const audio = document.getElementById('click-sound');
+    const scoreDisplay = document.getElementById('score');
+    let score = 0;
 
-        // 画像をランダムに動かす
-        function moveImage() {
-            const x = Math.random() * (window.innerWidth - img.offsetWidth);
-            const y = Math.random() * (window.innerHeight - img.offsetHeight);
-            img.style.left = `${x}px`;
-            img.style.top = `${y}px`;
+    // ダブルカウント防止用フラグ
+    let lastEventTime = 0;
 
-            // トレイル効果
-            img.style.transition = 'transform 0.5s ease, left 0.5s ease, top 0.5s ease';
-        }
+    // スコアを更新
+    function updateScore() {
+        const now = Date.now();
+        if (now - lastEventTime < 200) return; // 短時間での二重処理を防ぐ
+        lastEventTime = now;
 
-        // スコアを更新
-        function updateScore() {
-            score++;
-            scoreDisplay.textContent = `ほかくすう: ${score}`;
-        }
+        score++;
+        scoreDisplay.textContent = `ほかくすう: ${score}`;
+    }
 
-        // 画像クリック時の処理
-        img.addEventListener('click', () => {
-            updateScore();
-            audio.currentTime = 0;
-            audio.play().catch(() => {
-                console.warn('サウンドが再生されませんでした。');
-            });
+    // 画像クリック時の処理
+    img.addEventListener('click', (event) => {
+        event.preventDefault(); // タッチデバイスでのダブルカウント防止
+        updateScore();
+        playSound();
+        animateImage();
+    });
 
-            // クリック時のエフェクト
-            img.style.transform = 'scale(1.5)';
-            setTimeout(() => img.style.transform = 'scale(1)', 200);
+    // タッチ操作対応
+    img.addEventListener('touchstart', (event) => {
+        event.preventDefault(); // タッチイベントがクリックイベントを引き起こさないようにする
+        updateScore();
+        playSound();
+        animateImage();
+    });
+
+    // 音を再生
+    function playSound() {
+        audio.currentTime = 0;
+        audio.play().catch(() => {
+            console.warn('サウンドが再生されませんでした。');
         });
+    }
 
-        // 初期位置を設定
-        moveImage();
+    // アニメーション効果
+    function animateImage() {
+        img.style.transform = 'scale(1.5)';
+        setTimeout(() => img.style.transform = 'scale(1)', 200);
+    }
 
-        // 定期的に画像を移動
-        setInterval(moveImage, 1000);
+    // 画像をランダムに動かす
+    function moveImage() {
+        const x = Math.random() * (window.innerWidth - img.offsetWidth);
+        const y = Math.random() * (window.innerHeight - img.offsetHeight);
+        img.style.left = `${x}px`;
+        img.style.top = `${y}px`;
 
-        // タッチ操作対応
-        img.addEventListener('touchstart', () => {
-            updateScore();
-            audio.currentTime = 0;
-            audio.play().catch(() => {
-                console.warn('サウンドが再生されませんでした。');
-            });
-        });
-    </script>
+        img.style.transition = 'transform 0.5s ease, left 0.5s ease, top 0.5s ease';
+    }
+
+    // 初期位置を設定
+    moveImage();
+
+    // 定期的に画像を移動
+    setInterval(moveImage, 1000);
+</script>
+
 </body>
 </html>
